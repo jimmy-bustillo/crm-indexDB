@@ -21,10 +21,9 @@
       const db = e.target.result;
 
       const objectStore = db.createObjectStore("crm", {
-        keypath: "id",
+        keyPath: "id",
         autoIncrement: true,
       });
-
       objectStore.createIndex("nombre", "nombre", { unique: false });
       objectStore.createIndex("email", "email", { unique: true });
       objectStore.createIndex("telefono", "telefono", { unique: false });
