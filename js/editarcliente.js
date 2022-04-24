@@ -1,17 +1,23 @@
 (function () {
   let DB;
+  let idCliente;
 
   const nombreInput = document.querySelector("#nombre");
   const emailInput = document.querySelector("#email");
   const telefonoInput = document.querySelector("#telefono");
   const empresaInput = document.querySelector("#empresa");
 
-  conectarDB();
+  const formulario = document.querySelector("#formulario");
 
   document.addEventListener("DOMContentLoaded", () => {
+    conectarDB();
+
+    //Actualiza el registro
+    formulario.addEventListener("submit", actualizarCliente);
+
     // Verificar el id de la URL
     const parametroURL = new URLSearchParams(window.location.search);
-    const idCliente = parametroURL.get("id");
+    idCliente = parametroURL.get("id");
 
     if (idCliente) {
       setTimeout(() => {
@@ -19,6 +25,45 @@
       }, 100);
     }
   });
+
+  function actualizarCliente(e) {
+    e.preventDefault();
+    if (
+      nombreInput.value === "" ||
+      emailInput.value === "" ||
+      telefonoInput.value === "" ||
+      empresaInput === ""
+    ) {
+      imprimirAlerta("Todos los campos son obligatorios", "error");
+      return;
+    }
+
+    // Actualizar
+    const clienteActualizado = {
+      nombre: nombreInput.value,
+      email: emailInput.value,
+      telefono: telefonoInput.value,
+      empresa: empresaInput.value,
+      id: Number(idCliente),
+    };
+
+    const transaction = DB.transaction(["crm"], "readwrite");
+    const objectStore = transaction.objectStore("crm");
+
+    objectStore.put(clienteActualizado);
+
+    transaction.oncomplete = () => {
+      imprimirAlerta("Editado correctamente");
+
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 3000);
+    };
+
+    transaction.onerror = () => {
+      imprimirAlerta("Hubo un error", "error");
+    };
+  }
 
   function obtenerCliente(id) {
     const transaction = DB.transaction(["crm"], "readonly");
